@@ -1,0 +1,17 @@
+version: '3'
+services:
+  consul-server:
+    image: "consul"
+    ports:
+      - "8500:8500"
+  nginx-consul-template:
+    build: nginx-consul-template
+    ports:
+      - "80:80"
+    links:
+      - "consul-server:consul-server"
+    volumes:
+      - ./nginx-consul-template/conf.d:/etc/nginx/conf.d
+    environment:
+      - CONSUL_HOST=consul-server:8500
+      - CONSUL_LOG_LEVEL=debug
