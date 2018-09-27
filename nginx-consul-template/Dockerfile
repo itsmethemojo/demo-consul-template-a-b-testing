@@ -10,3 +10,5 @@ RUN wget -O consul-template.tgz https://releases.hashicorp.com/consul-template/$
     tar -xzf consul-template.tgz && \
     mv consul-template /usr/bin/ && \
     consul-template --version
+
+CMD nginx && consul-template -consul-addr "$CONSUL_HOST" -log-level "$CONSUL_LOG_LEVEL" -template "/etc/nginx/conf.d/default.conf.ctmpl:/etc/nginx/conf.d/default.conf:/usr/sbin/nginx -s reload"

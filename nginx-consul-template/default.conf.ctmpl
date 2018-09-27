@@ -4,6 +4,8 @@ server {
 
     location / {
         root   /usr/share/nginx/html;
-        return 200 'OK';
+        return 200 'OK {{ key "banana" }}';
     }
+
+    #{{ key "banana" }}
 }

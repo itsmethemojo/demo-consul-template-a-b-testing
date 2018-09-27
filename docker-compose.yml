@@ -4,6 +4,15 @@ services:
     image: "consul"
     ports:
       - "8500:8500"
+  consul-import:
+    image: "consul"
+    links:
+      - "consul-server:consul-server"
+    volumes:
+      - ./consul-import/import.json:/import/import.json
+    depends_on:
+      - consul-server
+    command: consul kv import -http-addr consul-server:8500 @/import/import.json
   nginx-consul-template:
     build: nginx-consul-template
     ports:
@@ -11,7 +20,9 @@ services:
     links:
       - "consul-server:consul-server"
     volumes:
-      - ./nginx-consul-template/conf.d:/etc/nginx/conf.d
+      - ./nginx-consul-template/default.conf.ctmpl:/etc/nginx/conf.d/default.conf.ctmpl
     environment:
       - CONSUL_HOST=consul-server:8500
       - CONSUL_LOG_LEVEL=debug
+    depends_on:
+      - consul-import
