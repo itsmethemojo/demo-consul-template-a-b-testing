@@ -1,11 +1,45 @@
+split_clients "${remote_addr}${http_user_agent}" $split_version {
+
+{{ if in (key "groups/a") "0" }}
+  100% b;
+  * a;
+{{ else }}
+  {{ if in (key "groups/b") "0" }}
+    100% a;
+    * b;
+  {{ else }}
+    {{ key "groups/a" }}% a;
+    * b;
+  {{ end }}
+
+{{ end }}
+}
+
+map $cookie_{{ key "cookie_prefix" }}_version $version {
+  default $split_version;
+  "a" "a";
+  "b" "b";
+}
+
+upstream upstream-a {
+    server application-a:80;
+}
+
+upstream upstream-b {
+    server application-b:80;
+}
+
 server {
-    listen       80;
-    server_name  localhost;
+  listen       80;
+  server_name  localhost;
+
+  location / {
+
+    add_header Set-Cookie "{{ key "cookie_prefix" }}_version=$version;Max-Age=7776000";
 
     location / {
-        root   /usr/share/nginx/html;
-        return 200 'OK {{ key "banana" }}';
+      proxy_set_header Host $host;
+      proxy_pass http://upstream-$version;
     }
-
-    #{{ key "banana" }}
+  }
 }

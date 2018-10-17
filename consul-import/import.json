@@ -1,7 +1,17 @@
 [
 	{
-		"key": "banana",
+		"key": "cookie_prefix",
 		"flags": 0,
-		"value": "Ymx1YmI="
+		"value": "YV9iX3Rlc3RfMQ=="
+	},
+	{
+		"key": "groups/a",
+		"flags": 0,
+		"value": "MjU="
+	},
+	{
+		"key": "groups/b",
+		"flags": 0,
+		"value": "NzU="
 	}
 ]
