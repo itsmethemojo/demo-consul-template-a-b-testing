@@ -1,10 +1,12 @@
+# distribute request in groups
+
 split_clients "${remote_addr}${http_user_agent}" $split_version {
 
-{{ if in (key "groups/a") "0" }}
+{{ if eq (key "groups/a") "0" }}
   100% b;
   * a;
 {{ else }}
-  {{ if in (key "groups/b") "0" }}
+  {{ if eq (key "groups/b") "0" }}
     100% a;
     * b;
   {{ else }}
@@ -15,8 +17,18 @@ split_clients "${remote_addr}${http_user_agent}" $split_version {
 {{ end }}
 }
 
-map $cookie_{{ key "cookie_prefix" }}_version $version {
+# if cookie exists cookie will overrule splitting
+
+map $cookie_{{ key "cookie_prefix" }}_version $cookie_version {
   default $split_version;
+  "a" "a";
+  "b" "b";
+}
+
+# if url parameter exists url parameter will overrule cookie
+
+map $arg_{{ key "url_parameter_name" }} $version {
+  default $cookie_version;
   "a" "a";
   "b" "b";
 }
