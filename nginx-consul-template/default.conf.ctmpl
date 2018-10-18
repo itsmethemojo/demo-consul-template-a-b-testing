@@ -1,23 +1,22 @@
-# distribute request in groups
+# this will set the variable $split_version regarding the group distribution defined in the consul key values
 
 split_clients "${remote_addr}${http_user_agent}" $split_version {
-
-{{ if eq (key "groups/a") "0" }}
+{{- if eq (key "groups/a") "0" }}
   100% b;
   * a;
-{{ else }}
-  {{ if eq (key "groups/b") "0" }}
+{{- else }}
+  {{- if eq (key "groups/b") "0" }}
     100% a;
     * b;
-  {{ else }}
+  {{- else }}
     {{ key "groups/a" }}% a;
     * b;
-  {{ end }}
-
-{{ end }}
+  {{- end }}
+{{- end }}
 }
 
-# if cookie exists cookie will overrule splitting
+# this will set the variable $cookie_version with exact the value from the cookie if it is a or b
+# if nothing is in the cookie it will take content of $split_version
 
 map $cookie_{{ key "cookie_prefix" }}_version $cookie_version {
   default $split_version;
@@ -25,13 +24,16 @@ map $cookie_{{ key "cookie_prefix" }}_version $cookie_version {
   "b" "b";
 }
 
-# if url parameter exists url parameter will overrule cookie
+# this will set the variable $version with exact the value from the url parameter defined in consul key url_parameter_name if it is a or b
+# if nothing is in the cookie it will take content of $cookie_version
 
 map $arg_{{ key "url_parameter_name" }} $version {
   default $cookie_version;
   "a" "a";
   "b" "b";
 }
+
+# having this 3 blocks done the group will be set by the distribution config when not set in cookie when not set in url parameter
 
 upstream upstream-a {
     server application-a:80;
